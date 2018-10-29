@@ -18,10 +18,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.sahil.shopcart.R;
 
 import java.util.ArrayList;
@@ -38,8 +44,7 @@ public class MainActivity extends Activity {
     static TextView txtc;
     Spinner spinner;
     String item;
-
-
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     private Paint p = new Paint();
 
 
@@ -69,6 +74,26 @@ public class MainActivity extends Activity {
         dbhelper = new DatabaseHelper(this);
 
        // csg = dbhelper.getData();
+
+        DatabaseReference allBooksRef = mDatabase.child("shop");
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<SetGet> shoplist = new ArrayList<>();
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    SetGet book = ds.getValue(SetGet.class);
+                    shoplist.add(book);
+                }
+
+                cAdapter = new CardAdapter(MainActivity.this, shoplist);
+                RvCustomList.setAdapter(cAdapter);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        };
+        allBooksRef.addListenerForSingleValueEvent(valueEventListener);
 
 
 
