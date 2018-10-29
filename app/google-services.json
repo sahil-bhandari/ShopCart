@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "979054399455",
+    "firebase_url": "https://store-demo-94772.firebaseio.com",
+    "project_id": "store-demo-94772",
+    "storage_bucket": "store-demo-94772.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:979054399455:android:e40504abccf48789",
+        "android_client_info": {
+          "package_name": "com.sahil.shopcart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "979054399455-jbv2l77evh9c7qul4t2iiqidlfnsbb0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACm6yoqJ90t90GKKq2_ZVhpQbupfcFLNQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
