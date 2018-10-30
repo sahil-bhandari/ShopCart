@@ -1,9 +1,10 @@
 package com.sahil.shopcart;
-import com.google.firebase.database.IgnoreExtraProperties;
 
 /**
  * Created by ACER_SAHIL on 09-02-2017.
  */
+import com.google.firebase.firestore.IgnoreExtraProperties;
+
 @IgnoreExtraProperties
 public class SetGet {
 

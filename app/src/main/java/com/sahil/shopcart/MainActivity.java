@@ -9,11 +9,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,15 +25,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.sahil.shopcart.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity {
 
@@ -44,7 +49,8 @@ public class MainActivity extends Activity {
     static TextView txtc;
     Spinner spinner;
     String item;
-    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    ArrayAdapter<String> adapter;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Paint p = new Paint();
 
 
@@ -72,28 +78,35 @@ public class MainActivity extends Activity {
         spinner.setAdapter(dataAdapter);
 
         dbhelper = new DatabaseHelper(this);
+        //csg = dbhelper.getData();
 
-       // csg = dbhelper.getData();
+        db.collection("shop")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                SetGet r = new SetGet();
+                                r.setId(document.get("id").toString());
+                                r.setName(document.get("name").toString());
+                                r.setMail(document.get("price").toString());
+                                r.setImage(document.get("image").toString());
+                                r.setDescrip(document.get("description").toString());
+                                csg.add(r);
 
-        DatabaseReference allBooksRef = mDatabase.child("shop");
-        ValueEventListener valueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<SetGet> shoplist = new ArrayList<>();
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    SetGet book = ds.getValue(SetGet.class);
-                    shoplist.add(book);
-                }
+                                cAdapter = new CardAdapter(MainActivity.this, csg);
+                                RvCustomList.setAdapter(cAdapter);
+                                cAdapter.notifyDataSetChanged();
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
 
-                cAdapter = new CardAdapter(MainActivity.this, shoplist);
-                RvCustomList.setAdapter(cAdapter);
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        };
-        allBooksRef.addListenerForSingleValueEvent(valueEventListener);
+        //cAdapter.notifyDataSetChanged();
 
 
 
@@ -196,29 +209,30 @@ public class MainActivity extends Activity {
 
 
                 }
-                else{
-                    dbhelper.setbool1(csg.get(position).getId());
-
-                    cAdapter.notifyItemChanged(position);
-                    getCount();
-
-                    Snackbar snackbar = Snackbar.make(RvCustomList, "OK!", Snackbar.LENGTH_LONG)
-                            .setAction("UNDO", new View.OnClickListener(){
-                                @Override
-                                public void onClick(View view){
-
-                                    dbhelper.setbool0(csg.get(position).getId());
-                                    cAdapter.notifyItemChanged(position);
-                                    getCount();
-
-                                    Snackbar snackbar1 = Snackbar.make(RvCustomList, "Restored!", Snackbar.LENGTH_SHORT);
-                                    snackbar1.show();
-                                }
-
-                            });
-
-                    snackbar.show();
-                }
+                //uncomment to enable swipe from right
+//                else{
+//                    dbhelper.setbool1(csg.get(position).getId());
+//
+//                    cAdapter.notifyItemChanged(position);
+//                    getCount();
+//
+//                    Snackbar snackbar = Snackbar.make(RvCustomList, "OK!", Snackbar.LENGTH_LONG)
+//                            .setAction("UNDO", new View.OnClickListener(){
+//                                @Override
+//                                public void onClick(View view){
+//
+//                                    dbhelper.setbool0(csg.get(position).getId());
+//                                    cAdapter.notifyItemChanged(position);
+//                                    getCount();
+//
+//                                    Snackbar snackbar1 = Snackbar.make(RvCustomList, "Restored!", Snackbar.LENGTH_SHORT);
+//                                    snackbar1.show();
+//                                }
+//
+//                            });
+//
+//                    snackbar.show();
+//                }
 
             }
 
@@ -238,14 +252,14 @@ public class MainActivity extends Activity {
                         RectF icon_dest = new RectF((float) itemView.getLeft() + width ,(float) itemView.getTop() + width,(float) itemView.getLeft()+ 2*width,(float)itemView.getBottom() - width);
                         c.drawBitmap(icon,null,icon_dest,p);
                     }
-                    else {
-                        p.setColor(Color.parseColor("#B2FF59"));
-                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
-                        c.drawRect(background,p);
-                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_add_shopping_cart_black_24dp);
-                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
-                        c.drawBitmap(icon,null,icon_dest,p);
-                    }
+//                    else {
+//                        p.setColor(Color.parseColor("#B2FF59"));
+//                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
+//                        c.drawRect(background,p);
+//                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_add_shopping_cart_black_24dp);
+//                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
+//                        c.drawBitmap(icon,null,icon_dest,p);
+//                    }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }

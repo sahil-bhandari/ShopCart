@@ -22,8 +22,7 @@
                 android:textAlignment="viewStart"
                 android:textStyle="normal|bold"
                 android:textSize="18sp"
-                android:layout_alignTop="@+id/imageViewitem"
-                android:layout_alignParentEnd="true" />
+                android:layout_toRightOf="@+id/imageViewitem" />
 
             <ImageView
                 android:layout_width="120dp"

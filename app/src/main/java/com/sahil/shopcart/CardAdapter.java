@@ -2,7 +2,10 @@ package com.sahil.shopcart;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +66,6 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
                     v.getContext().startActivity(intent);
                     break;
             }
-
         }
     }
 
@@ -81,7 +83,13 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         mholder.cprice.setText(listsg.getMail());
         mholder.cimg.setText(listsg.getImage());
         mholder.cdescrip.setText(listsg.getDescrip());
-        Picasso.with(context).load(listsg.getImage()).fit().into(mholder.cImg);
+        byte[] decodedString = Base64.decode(listsg.getImage(), Base64.DEFAULT);
+        //Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        mholder.cImg.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false));
+
+       // Picasso.with(context).load(listsg.getImage()).fit().into(mholder.cImg);
        // Picasso.with(context).load(listsg.getImage()).fit().into(mholder.sumImg);
 
 
