@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
+import static android.provider.Settings.NameValueTable.VALUE;
+
 /**
  * Created by ACER_SAHIL on 10-02-2017.
  */
@@ -23,14 +25,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_IMG = "image";
     public static final String COL_BOL = "bool";
     public static final String COL_DES = "description";
+    public static Context ctx;
 
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
-    }
-
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler) {
-        super(context, name, factory, version, errorHandler);
     }
 
     @Override
@@ -90,6 +89,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         db.close();
         return arrayList1;
+    }
+
+    public void insertdata(String name,String price, String image, String description){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_MAIL, price);
+        values.put(COL_IMG, image);
+        values.put(COL_DES, description);
+
+        db.insert(TABLE_NAME, null, values);
+        db.close();
     }
 
     //set bool=1

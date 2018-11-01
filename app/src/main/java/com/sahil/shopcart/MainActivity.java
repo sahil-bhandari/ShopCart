@@ -1,13 +1,19 @@
 package com.sahil.shopcart;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -20,7 +26,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,13 +35,12 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.sahil.shopcart.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static android.content.ContentValues.TAG;
 
@@ -49,9 +55,9 @@ public class MainActivity extends Activity {
     static TextView txtc;
     Spinner spinner;
     String item;
-    ArrayAdapter<String> adapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Paint p = new Paint();
+    ProgressBar progressBar;
 
 
     @Override
@@ -64,6 +70,7 @@ public class MainActivity extends Activity {
         imgcart = (ImageView) findViewById(R.id.CartimgV);
         txtc = (TextView)findViewById(R.id.textViewC);
         spinner = (Spinner) findViewById(R.id.spinner1);
+        progressBar = (ProgressBar) findViewById(R.id.progressbar);
 
         List<String> categories = new ArrayList<String>();
         categories.add("ALL PRODUCTS");
@@ -77,34 +84,16 @@ public class MainActivity extends Activity {
         // attaching data adapter to spinner
         spinner.setAdapter(dataAdapter);
 
-        dbhelper = new DatabaseHelper(this);
-        //csg = dbhelper.getData();
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
 
-        db.collection("shop")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                SetGet r = new SetGet();
-                                r.setId(document.get("id").toString());
-                                r.setName(document.get("name").toString());
-                                r.setMail(document.get("price").toString());
-                                r.setImage(document.get("image").toString());
-                                r.setDescrip(document.get("description").toString());
-                                csg.add(r);
 
-                                cAdapter = new CardAdapter(MainActivity.this, csg);
-                                RvCustomList.setAdapter(cAdapter);
-                                cAdapter.notifyDataSetChanged();
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
+            AsyncTaskRunner myTask = new AsyncTaskRunner();
+            myTask.execute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
 
         //cAdapter.notifyDataSetChanged();
 
@@ -306,4 +295,59 @@ public class MainActivity extends Activity {
         }
     }
 
+    private class AsyncTaskRunner extends AsyncTask<String, String, String> {
+        String a="0";
+        @Override
+        protected void onPreExecute() {
+
+
+        }
+        @Override
+        protected String doInBackground(String... params) {
+            dbhelper = new DatabaseHelper(getApplicationContext());
+
+            db.collection("shop").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+//                                    SetGet r = new SetGet();
+//                                    r.setId(Objects.requireNonNull(document.get("id")).toString());
+//                                    r.setName(Objects.requireNonNull(document.get("name")).toString());
+//                                    r.setMail(Objects.requireNonNull(document.get("price")).toString());
+//                                    r.setImage(Objects.requireNonNull(document.get("image")).toString());
+//                                    r.setDescrip(Objects.requireNonNull(document.get("description")).toString());
+//                                    csg.add(r);
+
+                                    dbhelper.insertdata(Objects.requireNonNull(document.get("name")).toString(),
+                                            Objects.requireNonNull(document.get("price")).toString(),
+                                            Objects.requireNonNull(document.get("image")).toString(),
+                                            Objects.requireNonNull(document.get("description")).toString());
+
+
+                                    a="1";
+                                }
+                            } else {
+                                Log.w(TAG, "Error getting documents.", task.getException());
+                            }
+                        }
+            });
+
+
+            return a;
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            // execution of result of Long time consuming operation
+            if(result.equals("0")){
+                progressBar.setVisibility(View.GONE);
+            }
+
+        }
+
+
+    }
 }
+
