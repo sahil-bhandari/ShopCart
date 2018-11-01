@@ -1,7 +1,10 @@
 package com.sahil.shopcart;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,51 +56,8 @@ public class CartoutAdapter extends RecyclerView.Adapter<CartoutAdapter.MyViewHo
             np.setMinValue(1);
             np.setMaxValue(10);
             np.setWrapSelectorWheel(true);
-            //GoToPlus();
-            //GoToMi();
 
         }
-       /* public void GoToPlus(){
-            final int count[] = {0};
-            plus.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            cartQ.setText(Integer.toString(a));
-                            a =count[0]++;
-
-                        }
-                    }
-            );
-        }
-
-        public void GoToMi(){
-            //final int count[] = {a};
-            minus.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                             a=b;
-                             b = count[a]--;
-                            cartQ.setText(String.valueOf(b));
-                            //a--;
-
-                            cartQ.setText(Integer.toString(a));
-                            if (a<=0){
-                                 a = 0;
-                                cartQ.setText(String.valueOf(a));
-                            }
-                            else
-                            {
-                                a--;
-                                cartQ.setText(String.valueOf(a));
-                            }
-
-                        }
-                    }
-            );
-            }*/
     }
 
     @Override
@@ -112,9 +72,10 @@ public class CartoutAdapter extends RecyclerView.Adapter<CartoutAdapter.MyViewHo
         final SetGet listsg1 = csg1.get(position);
         holder.cartname.setText(listsg1.getName());
         holder.cartprice.setText(listsg1.getMail());
-        Picasso.with(ctx).load(listsg1.getImage()).fit().into(holder.cartImg);
 
-        //Glide.with(context).load(csg.get(position).getImage()).into(mholder.cImg);
+        byte[] decodedString = Base64.decode(listsg1.getImage(), Base64.DEFAULT);
+        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        holder.cartImg.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false));
 
 
     }

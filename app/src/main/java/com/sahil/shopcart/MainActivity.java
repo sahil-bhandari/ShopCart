@@ -72,17 +72,14 @@ public class MainActivity extends Activity {
         spinner = (Spinner) findViewById(R.id.spinner1);
         progressBar = (ProgressBar) findViewById(R.id.progressbar);
 
-        List<String> categories = new ArrayList<String>();
-        categories.add("ALL PRODUCTS");
-        categories.add("Cases");
-        categories.add("Phones");
-        categories.add("Others");
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
+//        List<String> categories = new ArrayList<String>();
+//        categories = dbhelper.getCategoryData();
+//        // Creating adapter for spinner
+//        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+//        // Drop down layout style - list view with radio button
+//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        // attaching data adapter to spinner
+//        spinner.setAdapter(dataAdapter);
 
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
@@ -95,8 +92,6 @@ public class MainActivity extends Activity {
         }
 
 
-        //cAdapter.notifyDataSetChanged();
-
 
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
@@ -105,7 +100,7 @@ public class MainActivity extends Activity {
 
                 if (parent.getItemAtPosition(position).equals("ALL PRODUCTS"))
                 {
-                    csg = dbhelper.getData();
+                    csg = dbhelper.getData(1,"");
 
                     cAdapter = new CardAdapter(getApplicationContext(),csg);
                     RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
@@ -121,7 +116,7 @@ public class MainActivity extends Activity {
                 {
                     item = parent.getItemAtPosition(position).toString();
                     csg = new ArrayList<SetGet>();
-                    csg = dbhelper.getAllData(item);
+                    csg = dbhelper.getData(3,item);
 
                     cAdapter = new CardAdapter(getApplicationContext(),csg);
                     RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
@@ -136,7 +131,6 @@ public class MainActivity extends Activity {
                     Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_SHORT).show();
                     // write code on what you want to do with the item selection
                 }
-                // On selecting a spinner item
 
 
             }
@@ -172,7 +166,7 @@ public class MainActivity extends Activity {
 
                 if (direction == ItemTouchHelper.LEFT){
 
-                    dbhelper.setbool1(csg.get(position).getId());
+                    dbhelper.setboolean(csg.get(position).getId(),1);
                     //csg.remove(position);
                     cAdapter.notifyItemChanged(position);
                     getCount();
@@ -182,7 +176,7 @@ public class MainActivity extends Activity {
                                 @Override
                                 public void onClick(View view){
 
-                                    dbhelper.setbool0(csg.get(position).getId());
+                                    dbhelper.setboolean(csg.get(position).getId(),0);
 
                                     cAdapter.notifyItemChanged(position);
                                     getCount();

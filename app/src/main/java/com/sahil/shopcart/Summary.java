@@ -2,7 +2,10 @@ package com.sahil.shopcart;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,7 +35,10 @@ public class Summary extends Activity {
         String txtdescrip = i.getStringExtra("txt");
 
         phone.setText(txtdescrip);
-        Picasso.with(this).load(name).fit().into(product);
+
+        byte[] decodedString = Base64.decode(name, Base64.DEFAULT);
+        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        product.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false));
         
     }
 }

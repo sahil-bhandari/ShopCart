@@ -37,7 +37,7 @@ public class Cart extends Activity {
 
         dbhelper = new DatabaseHelper(this);
 
-        csg1 = dbhelper.getbool1();
+        csg1 = dbhelper.getData(2,"");
 
         cartAdapter = new CartoutAdapter(getApplicationContext(),csg1);
         RecyclerView.LayoutManager mLaM2 = new LinearLayoutManager(getApplicationContext());
@@ -65,17 +65,17 @@ public class Cart extends Activity {
 
                 if (direction == ItemTouchHelper.LEFT){
 
-                    dbhelper.setbool0(csg1.get(position).getId());
+                    dbhelper.setboolean(csg1.get(position).getId(),0);
                     csg1.remove(position);
                     cartAdapter.notifyItemRemoved(position);
                     MainActivity.dodecrease();
                 }
-                else{
-                    dbhelper.setbool0(csg1.get(position).getId());
-                    csg1.remove(position);
-                    cartAdapter.notifyItemRemoved(position);
-                    MainActivity.dodecrease();
-                }
+//                else{
+//                    dbhelper.setboolean(csg1.get(position).getId(),0);
+//                    csg1.remove(position);
+//                    cartAdapter.notifyItemRemoved(position);
+//                    MainActivity.dodecrease();
+//                }
             }
 
             @Override
@@ -94,14 +94,14 @@ public class Cart extends Activity {
                         RectF icon_dest = new RectF((float) itemView.getLeft() + width ,(float) itemView.getTop() + width,(float) itemView.getLeft()+ 2*width,(float)itemView.getBottom() - width);
                         c.drawBitmap(icon,null,icon_dest,p);
                     }
-                    else {
-                        p.setColor(Color.parseColor("#F44336"));
-                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
-                        c.drawRect(background,p);
-                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_remove_shopping_cart_black_24dp);
-                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
-                        c.drawBitmap(icon,null,icon_dest,p);
-                    }
+//                    else {
+//                        p.setColor(Color.parseColor("#F44336"));
+//                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
+//                        c.drawRect(background,p);
+//                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_remove_shopping_cart_black_24dp);
+//                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
+//                        c.drawBitmap(icon,null,icon_dest,p);
+//                    }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
