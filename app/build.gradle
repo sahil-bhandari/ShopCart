@@ -5,7 +5,7 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.sahil.shopcart"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -37,6 +37,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation "com.google.firebase:firebase-firestore:17.1.2"
     implementation 'com.android.support:multidex:1.0.1'
+    implementation 'com.github.armcha:ElasticView:0.1.0'
 }
 apply plugin: 'com.google.gms.google-services'
 

@@ -65,14 +65,14 @@ public class MainActivity extends Activity {
         txtc = (TextView)findViewById(R.id.textViewC);
         spinner = (Spinner) findViewById(R.id.spinner1);
 
-        List<String> categories = new ArrayList<String>();
-        categories = dbhelper.getCategoryData();
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
+//        List<String> categories = new ArrayList<String>();
+//        categories = dbhelper.getCategoryData();
+//        // Creating adapter for spinner
+//        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+//        // Drop down layout style - list view with radio button
+//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        // attaching data adapter to spinner
+//        spinner.setAdapter(dataAdapter);
 
         dbhelper = new DatabaseHelper(this);
         //csg = dbhelper.getData();
@@ -142,7 +142,6 @@ public class MainActivity extends Activity {
                     Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_SHORT).show();
                     // write code on what you want to do with the item selection
                 }
-                // On selecting a spinner item
 
 
             }
