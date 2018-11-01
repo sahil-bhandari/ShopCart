@@ -14,11 +14,6 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="com.sahil.shopcart.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
         <activity android:name="com.sahil.shopcart.splash"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
