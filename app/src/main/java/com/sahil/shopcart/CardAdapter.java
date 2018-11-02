@@ -57,12 +57,14 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
                     intent.putExtra("partyName", cimg.getText().toString());
                     intent.putExtra("txt", cdescrip.getText().toString());
                     intent.setClass(v.getContext(), Summary.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     v.getContext().startActivity(intent);
                     break;
                 default:
                     intent =  new Intent(v.getContext(), Summary.class);
                     intent.putExtra("partyName", cimg.getText().toString());
                     intent.putExtra("txt", cdescrip.getText().toString());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     v.getContext().startActivity(intent);
                     break;
             }
@@ -83,15 +85,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         mholder.cprice.setText(listsg.getMail());
         mholder.cimg.setText(listsg.getImage());
         mholder.cdescrip.setText(listsg.getDescrip());
+        //
         byte[] decodedString = Base64.decode(listsg.getImage(), Base64.DEFAULT);
-        //Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         mholder.cImg.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false));
-
-       // Picasso.with(context).load(listsg.getImage()).fit().into(mholder.cImg);
-       // Picasso.with(context).load(listsg.getImage()).fit().into(mholder.sumImg);
-
 
     }
 

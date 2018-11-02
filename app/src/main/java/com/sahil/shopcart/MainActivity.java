@@ -1,8 +1,10 @@
 package com.sahil.shopcart;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -23,6 +25,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -39,6 +43,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +63,7 @@ public class MainActivity extends Activity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Paint p = new Paint();
     ProgressBar progressBar;
-
+    public List<String> categories = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,27 +76,11 @@ public class MainActivity extends Activity {
         txtc = (TextView)findViewById(R.id.textViewC);
         spinner = (Spinner) findViewById(R.id.spinner1);
         progressBar = (ProgressBar) findViewById(R.id.progressbar);
+        dbhelper = new DatabaseHelper(getApplicationContext());
 
-//        List<String> categories = new ArrayList<String>();
-//        categories = dbhelper.getCategoryData();
-//        // Creating adapter for spinner
-//        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
-//        // Drop down layout style - list view with radio button
-//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        // attaching data adapter to spinner
-//        spinner.setAdapter(dataAdapter);
+        progressBar.setVisibility(View.VISIBLE);
 
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
-
-
-            AsyncTaskRunner myTask = new AsyncTaskRunner();
-            myTask.execute();
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-
+        fetchFirestoreData();
 
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
@@ -110,45 +99,138 @@ public class MainActivity extends Activity {
 
                     cAdapter.notifyDataSetChanged();
                     cAdapter.notifyItemChanged(position);
-                    //do nothing.
+
+                    int resId = R.anim.layout_animation_fall_down;
+                    LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(), resId);
+                    RvCustomList.setLayoutAnimation(animation);
                 }
                 else
                 {
                     item = parent.getItemAtPosition(position).toString();
                     csg = new ArrayList<SetGet>();
+                    //get selelcted data in arraylist
                     csg = dbhelper.getData(3,item);
 
                     cAdapter = new CardAdapter(getApplicationContext(),csg);
                     RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
-                    // mLaM.setOrientation(LinearLayoutManager.VERTICAL);
                     RvCustomList.setLayoutManager(mLaM);
                     RvCustomList.setItemAnimator(new DefaultItemAnimator());
                     RvCustomList.setAdapter(cAdapter);
-
                     cAdapter.notifyDataSetChanged();
                     cAdapter.notifyItemChanged(position);
                     // Showing selected spinner item
                     Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_SHORT).show();
-                    // write code on what you want to do with the item selection
+
+
+                    //animation for recycler view
+                    int resId = R.anim.layout_animation_fall_down;
+                    LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(), resId);
+                    RvCustomList.setLayoutAnimation(animation);
                 }
-
-
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
-
-
             }
         });
-
-
-
         SwipeToCart();
         GoToCart();
-        getCount();
-//        cAdapter.notifyDataSetChanged();
+        //getCount();
+    }
+
+    private void fetchFirestoreData() {
+        //Firestore to get Data
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+
+            db.collection("shop").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                            csg = dbhelper.getData(1,"");
+                            ArrayList<String> idlist = new ArrayList<>();
+                            for (int i = 0; i<csg.size() ; i++){
+                                idlist.add(csg.get(i).getId());
+                            }
+
+                            if(idlist.contains(Objects.requireNonNull(document.get("id")).toString())){
+                                dbhelper.updatedata(Objects.requireNonNull(document.get("id")).toString(),
+                                        Objects.requireNonNull(document.get("name")).toString(),
+                                        Objects.requireNonNull(document.get("price")).toString(),
+                                        Objects.requireNonNull(document.get("image")).toString(),
+                                        Objects.requireNonNull(document.get("category")).toString(),
+                                        Objects.requireNonNull(document.get("description")).toString());
+                            }
+                            else {
+                                dbhelper.insertdata(Objects.requireNonNull(document.get("id")).toString(),
+                                        Objects.requireNonNull(document.get("name")).toString(),
+                                        Objects.requireNonNull(document.get("price")).toString(),
+                                        Objects.requireNonNull(document.get("image")).toString(),
+                                        Objects.requireNonNull(document.get("category")).toString(),
+                                        Objects.requireNonNull(document.get("description")).toString());
+                            }
+
+
+                            cAdapter = new CardAdapter(getApplicationContext(),csg);
+                            RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
+                            RvCustomList.setLayoutManager(mLaM);
+                            RvCustomList.setItemAnimator(new DefaultItemAnimator());
+                            RvCustomList.setAdapter(cAdapter);
+                            cAdapter.notifyDataSetChanged();
+
+                            if (csg.size()>0){
+                                categories = dbhelper.getCategoryData();
+                                if(!categories.contains("ALL PRODUCTS")){
+                                    categories.add("ALL PRODUCTS");
+                                }
+                                //sorting arraylist
+                                Collections.sort(categories);
+                                // Creating adapter for spinner
+                                ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_item, categories);
+                                // Drop down layout style - list view with radio button
+                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                // attaching data adapter to spinner
+                                spinner.setAdapter(dataAdapter);
+                                dataAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    } else {
+                        Log.w(TAG, "Error getting documents.", task.getException());
+                    }
+                }
+            });
+
+            //animation for recycler view
+            int resId = R.anim.layout_animation_fall_down;
+            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(), resId);
+            RvCustomList.setLayoutAnimation(animation);
+            progressBar.setVisibility(View.GONE);
+        }
+        else{
+            final AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
+            // Setting Dialog Title
+            alertDialog.setTitle("Alert!!");
+            // Setting Dialog Message
+            //alertDialog.setMessage("Your cart is empty.\nKindly add items to cart.");
+            alertDialog.setMessage("No internet Connectivity");
+            // Setting Icon to Dialog
+//            alertDialog.setIcon(R.drawable.tick);
+            // Setting OK Button
+            alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    // Write your code here to execute after dialog closed
+                    alertDialog.cancel();
+                }
+            });
+
+            // Showing Alert Message
+            alertDialog.show();
+
+        }
     }
 
 
@@ -164,10 +246,8 @@ public class MainActivity extends Activity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final int position = viewHolder.getAdapterPosition();
 
-                if (direction == ItemTouchHelper.LEFT){
-
+                if (direction == ItemTouchHelper.RIGHT){
                     dbhelper.setboolean(csg.get(position).getId(),1);
-                    //csg.remove(position);
                     cAdapter.notifyItemChanged(position);
                     getCount();
 
@@ -175,45 +255,35 @@ public class MainActivity extends Activity {
                             .setAction("UNDO", new View.OnClickListener(){
                                 @Override
                                 public void onClick(View view){
-
                                     dbhelper.setboolean(csg.get(position).getId(),0);
-
                                     cAdapter.notifyItemChanged(position);
                                     getCount();
-
+                                    //undo added item
                                     Snackbar snackbar1 = Snackbar.make(RvCustomList, "Restored!", Snackbar.LENGTH_SHORT);
                                     snackbar1.show();
                                 }
 
                             });
-
                     snackbar.show();
-
-
-
                 }
-                //uncomment to enable swipe from right
 //                else{
-//                    dbhelper.setbool1(csg.get(position).getId());
-//
+//                    dbhelper.setboolean(csg.get(position).getId(),1);
 //                    cAdapter.notifyItemChanged(position);
 //                    getCount();
-//
 //                    Snackbar snackbar = Snackbar.make(RvCustomList, "OK!", Snackbar.LENGTH_LONG)
 //                            .setAction("UNDO", new View.OnClickListener(){
 //                                @Override
 //                                public void onClick(View view){
-//
-//                                    dbhelper.setbool0(csg.get(position).getId());
+//                                    dbhelper.setboolean(csg.get(position).getId(),0);
 //                                    cAdapter.notifyItemChanged(position);
 //                                    getCount();
 //
+//                                    //undo added item
 //                                    Snackbar snackbar1 = Snackbar.make(RvCustomList, "Restored!", Snackbar.LENGTH_SHORT);
 //                                    snackbar1.show();
 //                                }
 //
 //                            });
-//
 //                    snackbar.show();
 //                }
 
@@ -258,6 +328,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(MainActivity.this,Cart.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
                     }
                 }
@@ -289,59 +360,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class AsyncTaskRunner extends AsyncTask<String, String, String> {
-        String a="0";
-        @Override
-        protected void onPreExecute() {
 
-
-        }
-        @Override
-        protected String doInBackground(String... params) {
-            dbhelper = new DatabaseHelper(getApplicationContext());
-
-            db.collection("shop").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-//                                    SetGet r = new SetGet();
-//                                    r.setId(Objects.requireNonNull(document.get("id")).toString());
-//                                    r.setName(Objects.requireNonNull(document.get("name")).toString());
-//                                    r.setMail(Objects.requireNonNull(document.get("price")).toString());
-//                                    r.setImage(Objects.requireNonNull(document.get("image")).toString());
-//                                    r.setDescrip(Objects.requireNonNull(document.get("description")).toString());
-//                                    csg.add(r);
-
-                                    dbhelper.insertdata(Objects.requireNonNull(document.get("name")).toString(),
-                                            Objects.requireNonNull(document.get("price")).toString(),
-                                            Objects.requireNonNull(document.get("image")).toString(),
-                                            Objects.requireNonNull(document.get("description")).toString());
-
-
-                                    a="1";
-                                }
-                            } else {
-                                Log.w(TAG, "Error getting documents.", task.getException());
-                            }
-                        }
-            });
-
-
-            return a;
-        }
-
-
-        @Override
-        protected void onPostExecute(String result) {
-            // execution of result of Long time consuming operation
-            if(result.equals("0")){
-                progressBar.setVisibility(View.GONE);
-            }
-
-        }
-
-
-    }
 }
 

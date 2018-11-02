@@ -21,9 +21,9 @@ import java.util.ArrayList;
 
 public class Cart extends Activity {
 
-    private ArrayList<SetGet> csg1 = new ArrayList<>();
+    private ArrayList<SetGet> csg = new ArrayList<>();
     RecyclerView recyclerView;
-    CartoutAdapter cartAdapter;
+    CardAdapter cartAdapter;
     DatabaseHelper dbhelper;
     private Paint p = new Paint();
 
@@ -37,9 +37,9 @@ public class Cart extends Activity {
 
         dbhelper = new DatabaseHelper(this);
 
-        csg1 = dbhelper.getData(2,"");
+        csg = dbhelper.getData(2,"");
 
-        cartAdapter = new CartoutAdapter(getApplicationContext(),csg1);
+        cartAdapter = new CardAdapter(getApplicationContext(),csg);
         RecyclerView.LayoutManager mLaM2 = new LinearLayoutManager(getApplicationContext());
         // mLaM.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mLaM2);
@@ -63,10 +63,10 @@ public class Cart extends Activity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
 
-                if (direction == ItemTouchHelper.LEFT){
+                if (direction == ItemTouchHelper.RIGHT){
 
-                    dbhelper.setboolean(csg1.get(position).getId(),0);
-                    csg1.remove(position);
+                    dbhelper.setboolean(csg.get(position).getId(),0);
+                    csg.remove(position);
                     cartAdapter.notifyItemRemoved(position);
                     MainActivity.dodecrease();
                 }

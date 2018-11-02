@@ -15,14 +15,14 @@
             android:layout_height="109.8dp">
 
             <TextView
-                android:layout_width="252dp"
+                android:id="@+id/txtitem"
+                android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginLeft="30dp"
-                android:id="@+id/txtitem"
+                android:layout_toRightOf="@+id/imageViewitem"
                 android:textAlignment="viewStart"
-                android:textStyle="normal|bold"
                 android:textSize="18sp"
-                android:layout_toRightOf="@+id/imageViewitem" />
+                android:textStyle="normal|bold" />
 
             <ImageView
                 android:layout_width="120dp"

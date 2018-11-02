@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
          String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
-                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_ID + " INTEGER PRIMARY KEY, " +
                  COL_NAME + " TEXT NOT NULL, " +
                  COL_MAIL + " TEXT NOT NULL, " +
                  COL_IMG + " TEXT, " +
@@ -60,13 +60,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             query = "select * from " + TABLE_NAME + " where bool = 1 ";
         }
         else if (code == 3){
-            query = "select * from " + TABLE_NAME + " WHERE cat = '"+s +"'";
+            query = "select * from " + TABLE_NAME + " WHERE " +COL_CAT+ " = '"+s +"'";
         }
 
         ArrayList<SetGet> arrayList = new ArrayList<SetGet>();
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor resu = db.rawQuery(query ,null);
-        resu.moveToFirst();
         if(resu.moveToFirst()){
             do{
                 SetGet r = new SetGet();
@@ -121,4 +120,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return icount;
     }
 
+    public void insertdata(String id, String name, String price, String image, String category, String description) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues insertValues = new ContentValues();
+        insertValues.put(COL_ID, id);
+        insertValues.put(COL_NAME, name);
+        insertValues.put(COL_MAIL, price);
+        insertValues.put(COL_IMG, image);
+        insertValues.put(COL_CAT, category);
+        insertValues.put(COL_DES, description);
+        db.insert(TABLE_NAME, null, insertValues);
+        db.close();
+    }
+
+    public void updatedata(String id, String name, String price, String image, String category, String description) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(COL_NAME, name);
+        updateValues.put(COL_MAIL, price);
+        updateValues.put(COL_IMG, image);
+        updateValues.put(COL_CAT, category);
+        updateValues.put(COL_DES, description);
+        db.update(TABLE_NAME, updateValues, COL_ID+" = " + id, null);
+        db.close();
+    }
 }
