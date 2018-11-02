@@ -2,11 +2,9 @@ package com.sahil.shopcart;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -15,7 +13,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -31,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -211,23 +207,15 @@ public class MainActivity extends Activity {
             progressBar.setVisibility(View.GONE);
         }
         else{
-            final AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
-            // Setting Dialog Title
-            alertDialog.setTitle("Alert!!");
-            // Setting Dialog Message
-            //alertDialog.setMessage("Your cart is empty.\nKindly add items to cart.");
-            alertDialog.setMessage("No internet Connectivity");
-            // Setting Icon to Dialog
-//            alertDialog.setIcon(R.drawable.tick);
-            // Setting OK Button
-            alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    // Write your code here to execute after dialog closed
-                    alertDialog.cancel();
-                }
-            });
-
-            // Showing Alert Message
+            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+            alertDialog.setTitle("Alert!");
+            alertDialog.setMessage("No internet connectivity.");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
             alertDialog.show();
 
         }
