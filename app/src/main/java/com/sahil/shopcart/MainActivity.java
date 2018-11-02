@@ -136,6 +136,7 @@ public class MainActivity extends Activity {
     }
 
     private void fetchFirestoreData() {
+        Toast.makeText(getApplicationContext(),"Fetching Data...",Toast.LENGTH_SHORT).show();
         //Firestore to get Data
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
@@ -217,6 +218,7 @@ public class MainActivity extends Activity {
                         }
                     });
             alertDialog.show();
+            progressBar.setVisibility(View.GONE);
 
         }
     }
@@ -348,6 +350,11 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        // put your code here...
 
+    }
 }
 
