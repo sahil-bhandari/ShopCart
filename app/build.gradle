@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 28
@@ -38,6 +40,7 @@ dependencies {
     implementation "com.google.firebase:firebase-firestore:17.1.2"
     implementation 'com.android.support:multidex:1.0.1'
     implementation 'com.github.armcha:ElasticView:0.1.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
 }
-apply plugin: 'com.google.gms.google-services'
+
 

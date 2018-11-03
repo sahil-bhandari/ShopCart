@@ -7,12 +7,17 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.StrictMode;
 
+import com.crashlytics.android.Crashlytics;
+
+import io.fabric.sdk.android.Fabric;
+
 public class splash extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        Fabric.with(this, new Crashlytics());
 //        if (BuildConfig.DEBUG) {
 //            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
 //                    .detectDiskReads()
