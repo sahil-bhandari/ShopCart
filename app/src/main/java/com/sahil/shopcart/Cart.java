@@ -19,10 +19,13 @@ import com.sahil.shopcart.R;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class Cart extends Activity {
 
     private ArrayList<SetGet> csg = new ArrayList<>();
-    RecyclerView recyclerView;
+    @BindView(R.id.rv2) RecyclerView recyclerView;
     CardAdapter cartAdapter;
     DatabaseHelper dbhelper;
     private Paint p = new Paint();
@@ -32,11 +35,9 @@ public class Cart extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
-
-        recyclerView = (RecyclerView) findViewById(R.id.rv2);
+        ButterKnife.bind(this);
 
         dbhelper = new DatabaseHelper(this);
-
         csg = dbhelper.getData(2,"");
 
         cartAdapter = new CardAdapter(getApplicationContext(),csg);
@@ -63,19 +64,11 @@ public class Cart extends Activity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
 
-                if (direction == ItemTouchHelper.RIGHT){
-
+                if (direction == ItemTouchHelper.RIGHT || direction == ItemTouchHelper.LEFT){
                     dbhelper.setboolean(csg.get(position).getId(),0);
                     csg.remove(position);
                     cartAdapter.notifyItemRemoved(position);
-                    MainActivity.dodecrease();
                 }
-//                else{
-//                    dbhelper.setboolean(csg1.get(position).getId(),0);
-//                    csg1.remove(position);
-//                    cartAdapter.notifyItemRemoved(position);
-//                    MainActivity.dodecrease();
-//                }
             }
 
             @Override
@@ -94,14 +87,14 @@ public class Cart extends Activity {
                         RectF icon_dest = new RectF((float) itemView.getLeft() + width ,(float) itemView.getTop() + width,(float) itemView.getLeft()+ 2*width,(float)itemView.getBottom() - width);
                         c.drawBitmap(icon,null,icon_dest,p);
                     }
-//                    else {
-//                        p.setColor(Color.parseColor("#F44336"));
-//                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
-//                        c.drawRect(background,p);
-//                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_remove_shopping_cart_black_24dp);
-//                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
-//                        c.drawBitmap(icon,null,icon_dest,p);
-//                    }
+                    else {
+                        p.setColor(Color.parseColor("#F44336"));
+                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
+                        c.drawRect(background,p);
+                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_remove_shopping_cart_black_24dp);
+                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
+                        c.drawBitmap(icon,null,icon_dest,p);
+                    }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
@@ -109,6 +102,4 @@ public class Cart extends Activity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
-
-
     }

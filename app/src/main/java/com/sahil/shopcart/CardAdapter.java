@@ -16,6 +16,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * Created by ACER_SAHIL on 10-02-2017.
  */
@@ -33,41 +37,27 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
 
     public class CardViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public TextView cname,cprice,cdescrip,cimg;
-        public ImageView cImg;
+        @BindView(R.id.txtitem) TextView cname;
+        @BindView(R.id.txtprice) TextView cprice;
+        @BindView(R.id.txtdescrip) TextView cdescrip;
+        @BindView(R.id.textViewurl) TextView cimg;
+        @BindView(R.id.imageViewitem) ImageView cImg;
 
         public CardViewHolder(View itemView) {
             super(itemView);
 
-            cname = (TextView) itemView.findViewById(R.id.txtitem);
-            cprice = (TextView) itemView.findViewById(R.id.txtprice);
-            cImg = (ImageView) itemView.findViewById(R.id.imageViewitem);
-            cimg = (TextView) itemView.findViewById(R.id.textViewurl);
-            cdescrip = (TextView) itemView.findViewById(R.id.txtdescrip);
             itemView.setOnClickListener(this);
+            ButterKnife.bind(this, itemView);
 
         }
 
-        @Override
+        @OnClick
         public void onClick(View v) {
-
-            switch (getAdapterPosition()){
-                case 0:
-                    Intent intent =  new Intent();
-                    intent.putExtra("partyName", cimg.getText().toString());
-                    intent.putExtra("txt", cdescrip.getText().toString());
-                    intent.setClass(v.getContext(), Summary.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    v.getContext().startActivity(intent);
-                    break;
-                default:
-                    intent =  new Intent(v.getContext(), Summary.class);
-                    intent.putExtra("partyName", cimg.getText().toString());
-                    intent.putExtra("txt", cdescrip.getText().toString());
-                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    v.getContext().startActivity(intent);
-                    break;
-            }
+            Intent intent =  new Intent(v.getContext(), Summary.class);
+            intent.putExtra("partyName", cimg.getText().toString());
+            intent.putExtra("txt", cdescrip.getText().toString());
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            v.getContext().startActivity(intent);
         }
     }
 
@@ -85,7 +75,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         mholder.cprice.setText(listsg.getMail());
         mholder.cimg.setText(listsg.getImage());
         mholder.cdescrip.setText(listsg.getDescrip());
-        //
+
         byte[] decodedString = Base64.decode(listsg.getImage(), Base64.DEFAULT);
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         mholder.cImg.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false));

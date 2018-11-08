@@ -14,21 +14,23 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class Summary extends Activity {
 
     private ArrayList<SetGet> csg = new ArrayList<>();
     CardAdapter cAdapter;
     DatabaseHelper dbhelper;
-    TextView phone;
-    ImageView product;
+    @BindView(R.id.summarytxt) TextView phone;
+    @BindView(R.id.summarypic) ImageView product;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summary);
-        phone=(TextView)findViewById(R.id.summarytxt);
-        product=(ImageView)findViewById(R.id.summarypic);
 
+        ButterKnife.bind(this);
 
         Intent i = getIntent();
         String name = i.getStringExtra("partyName");

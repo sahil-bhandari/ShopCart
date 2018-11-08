@@ -1,5 +1,6 @@
 package com.sahil.shopcart;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -43,102 +44,50 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnItemSelected;
+
 import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity {
 
     private ArrayList<SetGet> csg = new ArrayList<>();
     public static int count=0;
-    RecyclerView RvCustomList;
     CardAdapter cAdapter;
     DatabaseHelper dbhelper;
-    ImageView imgcart;
-    static TextView txtc;
-    Spinner spinner;
     String item;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Paint p = new Paint();
-    ProgressBar progressBar;
     public List<String> categories = new ArrayList<String>();
+
+    @BindView(R.id.CartimgV) ImageView imgcart;
+    @BindView(R.id.progressbar) ProgressBar progressBar;
+    @BindView(R.id.textViewC) TextView txtc;
+    @BindView(R.id.spinner1) Spinner spinner;
+    @BindView(R.id.lv1) RecyclerView RvCustomList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RvCustomList = (RecyclerView) findViewById(R.id.lv1);
-        imgcart = (ImageView) findViewById(R.id.CartimgV);
-        txtc = (TextView)findViewById(R.id.textViewC);
-        spinner = (Spinner) findViewById(R.id.spinner1);
-        progressBar = (ProgressBar) findViewById(R.id.progressbar);
+        ButterKnife.bind(this);
+
         dbhelper = new DatabaseHelper(getApplicationContext());
 
-        progressBar.setVisibility(View.VISIBLE);
-
         fetchFirestoreData();
-
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                if (parent.getItemAtPosition(position).equals("ALL PRODUCTS"))
-                {
-                    csg = dbhelper.getData(1,"");
-
-                    cAdapter = new CardAdapter(getApplicationContext(),csg);
-                    RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
-                    RvCustomList.setLayoutManager(mLaM);
-                    RvCustomList.setItemAnimator(new DefaultItemAnimator());
-                    RvCustomList.setAdapter(cAdapter);
-
-                    cAdapter.notifyDataSetChanged();
-                    cAdapter.notifyItemChanged(position);
-
-                    int resId = R.anim.layout_animation_fall_down;
-                    LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(), resId);
-                    RvCustomList.setLayoutAnimation(animation);
-                }
-                else
-                {
-                    item = parent.getItemAtPosition(position).toString();
-                    csg = new ArrayList<SetGet>();
-                    //get selelcted data in arraylist
-                    csg = dbhelper.getData(3,item);
-
-                    cAdapter = new CardAdapter(getApplicationContext(),csg);
-                    RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
-                    RvCustomList.setLayoutManager(mLaM);
-                    RvCustomList.setItemAnimator(new DefaultItemAnimator());
-                    RvCustomList.setAdapter(cAdapter);
-                    cAdapter.notifyDataSetChanged();
-                    cAdapter.notifyItemChanged(position);
-                    // Showing selected spinner item
-                    Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_SHORT).show();
-
-
-                    //animation for recycler view
-                    int resId = R.anim.layout_animation_fall_down;
-                    LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(), resId);
-                    RvCustomList.setLayoutAnimation(animation);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
         SwipeToCart();
-        GoToCart();
         //getCount();
     }
 
     private void fetchFirestoreData() {
         Toast.makeText(getApplicationContext(),"Fetching Data...",Toast.LENGTH_SHORT).show();
         //Firestore to get Data
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
 
@@ -236,7 +185,7 @@ public class MainActivity extends Activity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final int position = viewHolder.getAdapterPosition();
 
-                if (direction == ItemTouchHelper.RIGHT){
+                if (direction == ItemTouchHelper.RIGHT || direction == ItemTouchHelper.LEFT){
                     dbhelper.setboolean(csg.get(position).getId(),1);
                     cAdapter.notifyItemChanged(position);
                     getCount();
@@ -256,26 +205,6 @@ public class MainActivity extends Activity {
                             });
                     snackbar.show();
                 }
-//                else{
-//                    dbhelper.setboolean(csg.get(position).getId(),1);
-//                    cAdapter.notifyItemChanged(position);
-//                    getCount();
-//                    Snackbar snackbar = Snackbar.make(RvCustomList, "OK!", Snackbar.LENGTH_LONG)
-//                            .setAction("UNDO", new View.OnClickListener(){
-//                                @Override
-//                                public void onClick(View view){
-//                                    dbhelper.setboolean(csg.get(position).getId(),0);
-//                                    cAdapter.notifyItemChanged(position);
-//                                    getCount();
-//
-//                                    //undo added item
-//                                    Snackbar snackbar1 = Snackbar.make(RvCustomList, "Restored!", Snackbar.LENGTH_SHORT);
-//                                    snackbar1.show();
-//                                }
-//
-//                            });
-//                    snackbar.show();
-//                }
 
             }
 
@@ -295,14 +224,14 @@ public class MainActivity extends Activity {
                         RectF icon_dest = new RectF((float) itemView.getLeft() + width ,(float) itemView.getTop() + width,(float) itemView.getLeft()+ 2*width,(float)itemView.getBottom() - width);
                         c.drawBitmap(icon,null,icon_dest,p);
                     }
-//                    else {
-//                        p.setColor(Color.parseColor("#B2FF59"));
-//                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
-//                        c.drawRect(background,p);
-//                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_add_shopping_cart_black_24dp);
-//                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
-//                        c.drawBitmap(icon,null,icon_dest,p);
-//                    }
+                    else {
+                        p.setColor(Color.parseColor("#B2FF59"));
+                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
+                        c.drawRect(background,p);
+                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_add_shopping_cart_black_24dp);
+                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
+                        c.drawBitmap(icon,null,icon_dest,p);
+                    }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
@@ -311,28 +240,8 @@ public class MainActivity extends Activity {
         itemTouchHelper.attachToRecyclerView(RvCustomList);
     }
 
-
-    public void GoToCart(){
-        imgcart.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(MainActivity.this,Cart.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        startActivity(intent);
-                    }
-                }
-        );
-    }
-
-    public int DisCount(){
-
-        int i = dbhelper.getTaskCount();
-        txtc.setText(Integer.toString(i));
-        return i;
-    }
     public void getCount(){
-        count= DisCount();
+        count=dbhelper.getTaskCount();
         if(count>0){
             txtc.setText(Integer.toString(count));
             txtc.setVisibility(View.VISIBLE);
@@ -340,21 +249,68 @@ public class MainActivity extends Activity {
         else
             txtc.setVisibility(View.GONE);
     }
-    public static void dodecrease() {
-        count--;
-        if (count <= 0) {
-            txtc.setVisibility(View.GONE);
-        } else {
-            txtc.setText(Integer.toString(count));
-            txtc.setVisibility(View.VISIBLE);
-        }
-    }
 
     @Override
     public void onResume(){
         super.onResume();
         // put your code here...
 
+        try {
+            getCount();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @OnClick(R.id.CartimgV)
+    void buttonClick() {
+        Intent intent = new Intent(MainActivity.this,Cart.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+    }
+
+    @OnItemSelected(R.id.spinner1)
+    public void spinnerItemSelected(Spinner spinner, int position) {
+        if (spinner.getItemAtPosition(position).equals("ALL PRODUCTS"))
+        {
+            csg = dbhelper.getData(1,"");
+
+            cAdapter = new CardAdapter(getApplicationContext(),csg);
+            RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
+            RvCustomList.setLayoutManager(mLaM);
+            RvCustomList.setItemAnimator(new DefaultItemAnimator());
+            RvCustomList.setAdapter(cAdapter);
+
+            cAdapter.notifyDataSetChanged();
+            cAdapter.notifyItemChanged(position);
+
+            int resId = R.anim.layout_animation_fall_down;
+            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(), resId);
+            RvCustomList.setLayoutAnimation(animation);
+        }
+        else
+        {
+            item = spinner.getItemAtPosition(position).toString();
+            csg = new ArrayList<SetGet>();
+            //get selelcted data in arraylist
+            csg = dbhelper.getData(3,item);
+
+            cAdapter = new CardAdapter(getApplicationContext(),csg);
+            RecyclerView.LayoutManager mLaM = new LinearLayoutManager(getApplicationContext());
+            RvCustomList.setLayoutManager(mLaM);
+            RvCustomList.setItemAnimator(new DefaultItemAnimator());
+            RvCustomList.setAdapter(cAdapter);
+            cAdapter.notifyDataSetChanged();
+            cAdapter.notifyItemChanged(position);
+            // Showing selected spinner item
+            Toast.makeText(getApplicationContext(), "Selected: " + item, Toast.LENGTH_SHORT).show();
+
+            //animation for recycler view
+            int resId = R.anim.layout_animation_fall_down;
+            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(), resId);
+            RvCustomList.setLayoutAnimation(animation);
+        }
     }
 }
 
